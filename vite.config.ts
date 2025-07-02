@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import process from 'process';
 
 // The name of your GitHub repository.
 const GITHUB_REPOSITORY_NAME = 'Search-V4';

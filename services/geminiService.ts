@@ -70,7 +70,7 @@ const parseGeminiResponse = (responseText: string): AnalysisResult | null => {
   } catch (e) {
     console.error("Failed to parse JSON response:", e);
     console.error("Raw response text:", responseText);
-    throw new Error(`Failed to parse AI response. Expected JSON but received: ${jsonStr.substring(0,1000)}...`);
+    throw new Error(`Failed to parse AI response. Expected JSON but received: ${responseText.substring(0,1000)}...`);
   }
 };
 
@@ -84,6 +84,18 @@ const getGenAI = (): GoogleGenAI => {
     }
     return new GoogleGenAI({ apiKey });
 }
+
+const handleEmptyResponse = (response: GenerateContentResponse, analysisType: 'text' | 'audio'): never => {
+    if (response.promptFeedback?.blockReason) {
+        const { blockReason, blockReasonMessage } = response.promptFeedback;
+        const errorMessage = `The AI response was blocked. Reason: ${blockReason}. ${blockReasonMessage || 'No additional details provided.'}`;
+        console.error(`Gemini API content blocked for ${analysisType} analysis.`, response.promptFeedback);
+        throw new Error(errorMessage);
+    } else {
+        console.error(`Gemini API returned an empty text response for ${analysisType} analysis without a specific block reason.`);
+        throw new Error("Received an empty response from the AI. This could be due to a temporary issue or a content policy violation.");
+    }
+};
 
 export const analyzeTextTranscript = async (transcript: string, productContext?: string | null, customerHistory?: CustomerHistoryRecord[] | null, salesperson?: IdentifiedSalesperson | null): Promise<AnalysisResult | null> => {
   const ai = getGenAI();
@@ -100,8 +112,7 @@ export const analyzeTextTranscript = async (transcript: string, productContext?:
     });
     
     if (!response.text) {
-        console.error("Gemini API returned an empty text response for text transcript analysis.");
-        throw new Error("Received an empty response from the AI.");
+        handleEmptyResponse(response, 'text');
     }
     return parseGeminiResponse(response.text);
 
@@ -140,8 +151,7 @@ export const analyzeAudioFile = async (audioFile: File, productContext?: string 
     });
 
     if (!response.text) {
-        console.error("Gemini API returned an empty text response for audio file analysis.");
-        throw new Error("Received an empty response from the AI.");
+        handleEmptyResponse(response, 'audio');
     }
     return parseGeminiResponse(response.text);
 
