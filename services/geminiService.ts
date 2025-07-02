@@ -94,7 +94,8 @@ export const analyzeTextTranscript = async (transcript: string, productContext?:
       model: GEMINI_MODEL_NAME,
       contents: prompt,
       config: {
-        temperature: 0.5, 
+        temperature: 0.5,
+        maxOutputTokens: 8192, 
       }
     });
     
@@ -134,6 +135,7 @@ export const analyzeAudioFile = async (audioFile: File, productContext?: string 
       contents: [{ parts: [audioPart, textPart] }],
       config: {
         temperature: 0.5,
+        maxOutputTokens: 8192,
       }
     });
 
