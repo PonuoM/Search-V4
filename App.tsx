@@ -1,6 +1,7 @@
 
 
 import React, { useState, useCallback, useEffect } from 'react';
+import packageJson from './package.json';
 import { gapi } from 'gapi-script';
 import * as XLSX from 'xlsx';
 import { Header } from './components/Header';
@@ -21,6 +22,18 @@ import { fetchAllDataFromSheet } from './services/googleSheetsService';
 
 
 const GITHUB_SALES_DATA_URL = 'https://media.githubusercontent.com/media/PonuoM/Search-V4/main/sales_data.xlsx';
+
+// Build/Version info (captured at module load)
+const APP_VERSION: string = (packageJson as any)?.version || '0.0.0';
+const BUILD_TIME_THAI: string = new Date().toLocaleString('th-TH', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  timeZone: 'Asia/Bangkok',
+});
 
 const parseExcelDate = (serial: any): Date | null => {
     if (!serial) return null;
@@ -460,6 +473,7 @@ const App: React.FC = () => {
       <footer className="text-center py-4 text-slate-500 dark:text-slate-400 text-sm">
         <p>Powered by Thanu Suriwong</p>
         <p>&copy; {new Date().getFullYear()} Customer Service. All rights reserved.</p>
+        <p className="mt-1">อัปเดตล่าสุด: {BUILD_TIME_THAI} • เวอร์ชัน {APP_VERSION}</p>
       </footer>
     </div>
   );
