@@ -189,9 +189,9 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ allRecords, 
         .sort((a, b) => b['วันที่ขาย'].getTime() - a['วันที่ขาย'].getTime());
 
     if (dateFilter === '3months') {
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-        return customerRecords.filter(r => r['วันที่ขาย'] >= threeMonthsAgo);
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        return customerRecords.filter(r => r['วันที่ขาย'] >= ninetyDaysAgo);
     }
 
     return customerRecords;
