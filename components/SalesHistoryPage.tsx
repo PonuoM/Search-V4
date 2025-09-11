@@ -52,6 +52,8 @@ const CustomerSummaryCard: React.FC<{ customer: Customer }> = ({ customer }) => 
 const HistoryTable: React.FC<{ records: SalesHistoryRecord[]; dateFilter: 'all' | '3months' }> = ({ records, dateFilter }) => {
     const ninetyDaysAgo = useMemo(() => {
         const date = new Date();
+        // Normalize to start of day to avoid off-by-one from time components
+        date.setHours(0, 0, 0, 0);
         date.setDate(date.getDate() - 90);
         return date;
     }, []);
@@ -189,9 +191,16 @@ export const SalesHistoryPage: React.FC<SalesHistoryPageProps> = ({ allRecords, 
         .sort((a, b) => b['วันที่ขาย'].getTime() - a['วันที่ขาย'].getTime());
 
     if (dateFilter === '3months') {
-        const ninetyDaysAgo = new Date();
-        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-        return customerRecords.filter(r => r['วันที่ขาย'] >= ninetyDaysAgo);
+        const threshold = new Date();
+        // Normalize threshold to start of day
+        threshold.setHours(0, 0, 0, 0);
+        threshold.setDate(threshold.getDate() - 90);
+        return customerRecords.filter(r => {
+            // Compare using start-of-day for each sale date
+            const sale = r['วันที่ขาย'];
+            const saleStartOfDay = new Date(sale.getFullYear(), sale.getMonth(), sale.getDate());
+            return saleStartOfDay >= threshold;
+        });
     }
 
     return customerRecords;
